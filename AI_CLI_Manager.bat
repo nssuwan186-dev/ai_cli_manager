@@ -1,0 +1,570 @@
+@echo off
+setlocal enabledelayedexpansion
+color 0A
+title AI CLI Tools Manager
+
+REM ========================================
+REM 1. ADMIN PRIVILEGES CHECK (BEFORE LOGGING)
+REM ========================================
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo [CRITICAL] Administrator privileges required.
+    echo Requesting administrator privileges...
+    powershell -Command "$f='%~f0'; if (Get-Command wt.exe -ErrorAction SilentlyContinue) { Start-Process wt -ArgumentList \"cmd /k `\"$f`\"\" -Verb RunAs } else { Start-Process cmd -ArgumentList '/k', \"`\"$f`\"\" -Verb RunAs }"
+    exit /b
+)
+
+REM ========================================
+REM 2. LOGGING SETUP
+REM ========================================
+set "SCRIPT_DIR=%~dp0"
+set "LOG_FOLDER=%SCRIPT_DIR%Log Files"
+if not exist "%LOG_FOLDER%" mkdir "%LOG_FOLDER%"
+
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set "DT=%%I"
+set "TIMESTAMP=%DT:~0,4%%DT:~4,2%%DT:~6,2%_%DT:~8,2%%DT:~10,2%%DT:~12,2%_%DT:~15,3%"
+set "LOG_FILE=%LOG_FOLDER%\AI_CLI_MG_%TIMESTAMP%.log"
+
+echo ================================================ > "%LOG_FILE%"
+echo AI CLI Tools Manager - Session Log >> "%LOG_FILE%"
+echo Started: %date% %time% >> "%LOG_FILE%"
+echo ================================================ >> "%LOG_FILE%"
+echo. >> "%LOG_FILE%"
+
+echo [%time%] [OK] Running with Administrator privileges. >> "%LOG_FILE%"
+echo [OK] Running with Administrator privileges.
+
+REM ========================================
+REM 3. TERMINAL DETECTION
+REM ========================================
+set "UseWT=0"
+where wt >nul 2>&1
+if %errorlevel% equ 0 (
+    set "UseWT=1"
+    echo [%time%] [OK] Windows Terminal found. >> "%LOG_FILE%"
+    echo [OK] Windows Terminal found.
+) else (
+    echo [%time%] [INFO] Windows Terminal not found. >> "%LOG_FILE%"
+    echo [INFO] Windows Terminal not found.
+)
+timeout /t 1 >nul
+
+REM ========================================
+REM 4. MAIN MENU LOOP
+REM ========================================
+:MAIN_MENU
+cls
+echo.
+echo ================================================
+echo           AI CLI TOOLS MANAGER (v2.1)
+echo ================================================
+echo.
+echo --- CLI Management ---
+echo  1. Check and Install All CLIs
+echo  2. Show Installed CLI Versions
+echo.
+echo --- Launch CLIs ---
+echo  3. Launch Gemini CLI
+echo  4. Launch Mistral Vibe CLI
+echo  5. Launch iFlow CLI
+echo  6. Launch OpenCode CLI
+echo  7. Launch Qwen Code CLI
+echo  8. Launch KiloCode CLI
+echo.
+echo --- Context Menu ---
+echo  9. Add to Windows Context Menu
+echo 10. Remove from Windows Context Menu
+echo 11. Export Registry Backup
+echo.
+echo --- Utilities ---
+echo 12. Restart File Explorer
+echo.
+echo  0. Exit
+echo.
+echo ================================================
+set /p "choice=Enter your choice (0-12): "
+
+echo [%time%] [INPUT] Choice: %choice% >> "%LOG_FILE%"
+
+if "%choice%"=="1" goto INSTALL_ALL
+if "%choice%"=="2" goto SHOW_VERSIONS
+if "%choice%"=="3" goto LAUNCH_GEMINI
+if "%choice%"=="4" goto LAUNCH_VIBE
+if "%choice%"=="5" goto LAUNCH_IFLOW
+if "%choice%"=="6" goto LAUNCH_OPENCODE
+if "%choice%"=="7" goto LAUNCH_QWEN
+if "%choice%"=="8" goto LAUNCH_KILOCODE
+if "%choice%"=="9" goto ADD_CONTEXT_MENU
+if "%choice%"=="10" goto REMOVE_CONTEXT_MENU
+if "%choice%"=="11" goto BACKUP_REGISTRY
+if "%choice%"=="12" goto RESTART_EXPLORER
+if "%choice%"=="0" goto EXIT_SCRIPT
+
+echo [%time%] [WARNING] Invalid choice >> "%LOG_FILE%"
+echo Invalid choice. Press any key...
+pause >nul
+goto MAIN_MENU
+
+REM ========================================
+REM LAUNCH CLI SECTIONS
+REM ========================================
+:LAUNCH_GEMINI
+echo [%time%] === Launching Gemini CLI === >> "%LOG_FILE%"
+set "LAUNCH_DIR=%~1"
+if "%LAUNCH_DIR%"=="" set "LAUNCH_DIR=%USERPROFILE%"
+if "%UseWT%"=="1" (
+    echo [%time%] Command: wt.exe -d "%LAUNCH_DIR%" cmd /k gemini >> "%LOG_FILE%"
+    start wt.exe -d "%LAUNCH_DIR%" cmd /k gemini
+) else (
+    echo [%time%] Command: cmd /k gemini (in %LAUNCH_DIR%) >> "%LOG_FILE%"
+    start cmd /k "cd /d "%LAUNCH_DIR%" && gemini"
+)
+goto EXIT_SCRIPT
+
+:LAUNCH_VIBE
+echo [%time%] === Launching Mistral Vibe === >> "%LOG_FILE%"
+set "LAUNCH_DIR=%~1"
+if "%LAUNCH_DIR%"=="" set "LAUNCH_DIR=%USERPROFILE%"
+if "%UseWT%"=="1" (
+    echo [%time%] Command: wt.exe -d "%LAUNCH_DIR%" cmd /k vibe >> "%LOG_FILE%"
+    start wt.exe -d "%LAUNCH_DIR%" cmd /k vibe
+) else (
+    echo [%time%] Command: cmd /k vibe (in %LAUNCH_DIR%) >> "%LOG_FILE%"
+    start cmd /k "cd /d "%LAUNCH_DIR%" && vibe"
+)
+goto EXIT_SCRIPT
+
+:LAUNCH_IFLOW
+echo [%time%] === Launching iFlow CLI === >> "%LOG_FILE%"
+set "LAUNCH_DIR=%~1"
+if "%LAUNCH_DIR%"=="" set "LAUNCH_DIR=%USERPROFILE%"
+if "%UseWT%"=="1" (
+    echo [%time%] Command: wt.exe -d "%LAUNCH_DIR%" cmd /k iflow >> "%LOG_FILE%"
+    start wt.exe -d "%LAUNCH_DIR%" cmd /k iflow
+) else (
+    echo [%time%] Command: cmd /k iflow (in %LAUNCH_DIR%) >> "%LOG_FILE%"
+    start cmd /k "cd /d "%LAUNCH_DIR%" && iflow"
+)
+goto EXIT_SCRIPT
+
+:LAUNCH_OPENCODE
+echo [%time%] === Launching OpenCode CLI === >> "%LOG_FILE%"
+set "LAUNCH_DIR=%~1"
+if "%LAUNCH_DIR%"=="" set "LAUNCH_DIR=%USERPROFILE%"
+if "%UseWT%"=="1" (
+    echo [%time%] Command: wt.exe -d "%LAUNCH_DIR%" cmd /k opencode >> "%LOG_FILE%"
+    start wt.exe -d "%LAUNCH_DIR%" cmd /k opencode
+) else (
+    echo [%time%] Command: cmd /k opencode (in %LAUNCH_DIR%) >> "%LOG_FILE%"
+    start cmd /k "cd /d "%LAUNCH_DIR%" && opencode"
+)
+goto EXIT_SCRIPT
+
+:LAUNCH_QWEN
+echo [%time%] === Launching Qwen Code CLI === >> "%LOG_FILE%"
+set "LAUNCH_DIR=%~1"
+if "%LAUNCH_DIR%"=="" set "LAUNCH_DIR=%USERPROFILE%"
+if "%UseWT%"=="1" (
+    echo [%time%] Command: wt.exe -d "%LAUNCH_DIR%" cmd /k qwen >> "%LOG_FILE%"
+    start wt.exe -d "%LAUNCH_DIR%" cmd /k qwen
+) else (
+    echo [%time%] Command: cmd /k qwen (in %LAUNCH_DIR%) >> "%LOG_FILE%"
+    start cmd /k "cd /d "%LAUNCH_DIR%" && qwen"
+)
+goto EXIT_SCRIPT
+
+:LAUNCH_KILOCODE
+echo [%time%] === Launching KiloCode CLI === >> "%LOG_FILE%"
+set "LAUNCH_DIR=%~1"
+if "%LAUNCH_DIR%"=="" set "LAUNCH_DIR=%USERPROFILE%"
+if "%UseWT%"=="1" (
+    echo [%time%] Command: wt.exe -d "%LAUNCH_DIR%" cmd /k kilocode >> "%LOG_FILE%"
+    start wt.exe -d "%LAUNCH_DIR%" cmd /k kilocode
+) else (
+    echo [%time%] Command: cmd /k kilocode (in %LAUNCH_DIR%) >> "%LOG_FILE%"
+    start cmd /k "cd /d "%LAUNCH_DIR%" && kilocode"
+)
+goto EXIT_SCRIPT
+
+REM ========================================
+REM SHOW VERSIONS
+REM ========================================
+:SHOW_VERSIONS
+cls
+echo.
+echo ================================================
+echo         Installed CLI Tool Versions
+echo ================================================
+echo.
+echo [%time%] === Checking versions === >> "%LOG_FILE%"
+
+echo --- Gemini CLI ---
+echo --- Gemini CLI --- >> "%LOG_FILE%"
+set "_result="
+for /f "delims=" %%V in ('npm list -g @google/gemini-cli 2^>nul ^| findstr "@google/gemini-cli"') do set "_result=%%V"
+if defined _result (echo %_result% & echo [%time%] %_result% >> "%LOG_FILE%") else (echo [NOT INSTALLED] & echo [%time%] [NOT INSTALLED] >> "%LOG_FILE%")
+
+echo.
+echo --- iFlow CLI ---
+echo --- iFlow CLI --- >> "%LOG_FILE%"
+set "_result="
+for /f "delims=" %%V in ('npm list -g @iflow-ai/iflow-cli 2^>nul ^| findstr "@iflow-ai/iflow-cli"') do set "_result=%%V"
+if defined _result (echo %_result% & echo [%time%] %_result% >> "%LOG_FILE%") else (echo [NOT INSTALLED] & echo [%time%] [NOT INSTALLED] >> "%LOG_FILE%")
+
+echo.
+echo --- OpenCode CLI ---
+echo --- OpenCode CLI --- >> "%LOG_FILE%"
+set "_result="
+for /f "delims=" %%V in ('npm list -g opencode-ai 2^>nul ^| findstr "opencode-ai"') do set "_result=%%V"
+if defined _result (echo %_result% & echo [%time%] %_result% >> "%LOG_FILE%") else (echo [NOT INSTALLED] & echo [%time%] [NOT INSTALLED] >> "%LOG_FILE%")
+
+echo.
+echo --- Qwen Code CLI ---
+echo --- Qwen Code CLI --- >> "%LOG_FILE%"
+set "_result="
+for /f "delims=" %%V in ('npm list -g @qwen-code/qwen-code 2^>nul ^| findstr "@qwen-code/qwen-code"') do set "_result=%%V"
+if defined _result (echo %_result% & echo [%time%] %_result% >> "%LOG_FILE%") else (echo [NOT INSTALLED] & echo [%time%] [NOT INSTALLED] >> "%LOG_FILE%")
+
+echo.
+echo --- KiloCode CLI ---
+echo --- KiloCode CLI --- >> "%LOG_FILE%"
+set "_result="
+for /f "delims=" %%V in ('npm list -g @kilocode/cli 2^>nul ^| findstr "@kilocode/cli"') do set "_result=%%V"
+if defined _result (echo %_result% & echo [%time%] %_result% >> "%LOG_FILE%") else (echo [NOT INSTALLED] & echo [%time%] [NOT INSTALLED] >> "%LOG_FILE%")
+
+echo.
+echo --- Mistral Vibe ---
+echo --- Mistral Vibe --- >> "%LOG_FILE%"
+set "_result="
+for /f "delims=" %%V in ('pip show mistral-vibe 2^>nul ^| findstr "Version"') do set "_result=%%V"
+if defined _result (echo %_result% & echo [%time%] %_result% >> "%LOG_FILE%") else (echo [NOT INSTALLED] & echo [%time%] [NOT INSTALLED] >> "%LOG_FILE%")
+
+echo.
+echo ================================================
+pause
+goto MAIN_MENU
+
+REM ========================================
+REM INSTALL ALL
+REM ========================================
+:INSTALL_ALL
+cls
+echo.
+echo ================================================
+echo     Installing/Updating All CLIs
+echo ================================================
+echo.
+echo [%time%] === Install/Update started === >> "%LOG_FILE%"
+
+where node >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Node.js not found! Install from nodejs.org
+    echo [%time%] [ERROR] Node.js missing >> "%LOG_FILE%"
+    pause
+    goto MAIN_MENU
+)
+echo [OK] Node.js found.
+echo [%time%] [OK] Node.js found >> "%LOG_FILE%"
+
+set "HAS_PYTHON=0"
+where python >nul 2>&1
+if not errorlevel 1 (
+    set "HAS_PYTHON=1"
+    echo [OK] Python found.
+    echo [%time%] [OK] Python found >> "%LOG_FILE%"
+) else (
+    echo [WARNING] Python not found. Mistral Vibe will be skipped.
+    echo [%time%] [WARNING] Python missing >> "%LOG_FILE%"
+)
+echo.
+
+echo [Gemini CLI] Checking...
+echo --- Gemini CLI --- >> "%LOG_FILE%"
+call npm list -g @google/gemini-cli >nul 2>&1
+if errorlevel 1 (
+    echo Installing Gemini CLI...
+    call npm install -g @google/gemini-cli >nul 2>&1
+    if errorlevel 1 (echo [FAILED] & echo [%time%] [FAILED] >> "%LOG_FILE%") else (echo [INSTALLED] & echo [%time%] [OK] Installed >> "%LOG_FILE%")
+) else (
+    echo [ALREADY INSTALLED]
+    echo [%time%] [SKIP] Already installed >> "%LOG_FILE%"
+)
+
+echo [iFlow CLI] Checking...
+echo --- iFlow CLI --- >> "%LOG_FILE%"
+call npm list -g @iflow-ai/iflow-cli >nul 2>&1
+if errorlevel 1 (
+    echo Installing iFlow CLI...
+    call npm install -g @iflow-ai/iflow-cli >nul 2>&1
+    if errorlevel 1 (echo [FAILED] & echo [%time%] [FAILED] >> "%LOG_FILE%") else (echo [INSTALLED] & echo [%time%] [OK] Installed >> "%LOG_FILE%")
+) else (
+    echo [ALREADY INSTALLED]
+    echo [%time%] [SKIP] Already installed >> "%LOG_FILE%"
+)
+
+echo [OpenCode CLI] Checking...
+echo --- OpenCode CLI --- >> "%LOG_FILE%"
+call npm list -g opencode-ai >nul 2>&1
+if errorlevel 1 (
+    echo Installing OpenCode CLI...
+    call npm install -g opencode-ai >nul 2>&1
+    if errorlevel 1 (echo [FAILED] & echo [%time%] [FAILED] >> "%LOG_FILE%") else (echo [INSTALLED] & echo [%time%] [OK] Installed >> "%LOG_FILE%")
+) else (
+    echo [ALREADY INSTALLED]
+    echo [%time%] [SKIP] Already installed >> "%LOG_FILE%"
+)
+
+echo [Qwen Code] Checking...
+echo --- Qwen Code CLI --- >> "%LOG_FILE%"
+call npm list -g @qwen-code/qwen-code >nul 2>&1
+if errorlevel 1 (
+    echo Installing Qwen Code CLI...
+    call npm install -g @qwen-code/qwen-code >nul 2>&1
+    if errorlevel 1 (echo [FAILED] & echo [%time%] [FAILED] >> "%LOG_FILE%") else (echo [INSTALLED] & echo [%time%] [OK] Installed >> "%LOG_FILE%")
+) else (
+    echo [ALREADY INSTALLED]
+    echo [%time%] [SKIP] Already installed >> "%LOG_FILE%"
+)
+
+echo [KiloCode] Checking...
+echo --- KiloCode CLI --- >> "%LOG_FILE%"
+call npm list -g @kilocode/cli >nul 2>&1
+if errorlevel 1 (
+    echo Installing KiloCode CLI...
+    call npm install -g @kilocode/cli >nul 2>&1
+    if errorlevel 1 (echo [FAILED] & echo [%time%] [FAILED] >> "%LOG_FILE%") else (echo [INSTALLED] & echo [%time%] [OK] Installed >> "%LOG_FILE%")
+) else (
+    echo [ALREADY INSTALLED]
+    echo [%time%] [SKIP] Already installed >> "%LOG_FILE%"
+)
+
+if "%HAS_PYTHON%"=="1" (
+    echo [Mistral Vibe] Checking...
+    echo --- Mistral Vibe --- >> "%LOG_FILE%"
+    pip show mistral-vibe >nul 2>&1
+    if errorlevel 1 (
+        echo Installing Mistral Vibe...
+        pip install mistral-vibe >nul 2>&1
+        if errorlevel 1 (echo [FAILED] & echo [%time%] [FAILED] >> "%LOG_FILE%") else (echo [INSTALLED] & echo [%time%] [OK] Installed >> "%LOG_FILE%")
+    ) else (
+        echo [ALREADY INSTALLED]
+        echo [%time%] [SKIP] Already installed >> "%LOG_FILE%"
+    )
+)
+
+echo.
+echo ================================================
+echo All tasks completed!
+echo ================================================
+echo [%time%] === Install/Update completed === >> "%LOG_FILE%"
+pause
+goto MAIN_MENU
+
+REM ========================================
+REM BACKUP REGISTRY
+REM ========================================
+:BACKUP_REGISTRY
+cls
+echo.
+echo ================================================
+echo         Export Registry Backup
+echo ================================================
+echo.
+
+set "BACKUP_FILE=%LOG_FOLDER%\AI_CLI_Backup_%TIMESTAMP%.reg"
+echo Saving to: %BACKUP_FILE%
+echo [%time%] Backup to: %BACKUP_FILE% >> "%LOG_FILE%"
+echo.
+
+reg export "HKEY_CLASSES_ROOT\Directory\Background\shell" "%BACKUP_FILE%" /y
+if %errorlevel% equ 0 (
+    echo [SUCCESS] Backup created.
+    echo [%time%] [SUCCESS] Backup created >> "%LOG_FILE%"
+) else (
+    echo [ERROR] Backup failed.
+    echo [%time%] [ERROR] Backup failed >> "%LOG_FILE%"
+)
+pause
+goto MAIN_MENU
+
+REM ========================================
+REM ADD CONTEXT MENU
+REM ========================================
+:ADD_CONTEXT_MENU
+cls
+echo.
+echo ================================================
+echo     Adding AI CLIs to Context Menu
+echo ================================================
+echo.
+echo [%time%] === Adding context menu === >> "%LOG_FILE%"
+
+echo SAFETY INFORMATION:
+echo ------------------
+echo This script will modify Windows Registry to add
+echo context menu entries. Here's what you should know:
+echo.
+echo WHAT IT DOES:
+echo - Adds "Open with AI CLI" to right-click menu
+echo - Only modifies HKEY_CLASSES_ROOT context menus
+echo - Creates standard Windows shell extensions
+echo - Uses Microsoft-documented registry locations
+echo.
+echo IS IT SAFE?
+echo - YES - These are standard context menu additions
+echo - Registry changes are limited and reversible
+echo - Same method used by apps like WinRAR, 7-Zip
+echo - Microsoft officially supports this approach
+echo.
+echo SAFEGUARDS:
+echo - Option 11 creates a backup before changes
+echo - Option 10 removes all changes cleanly
+echo - No system files are modified
+echo - Only adds menu items, doesn't change behavior
+echo.
+echo RECOMMENDATION:
+echo 1. Create a backup first (Option 11)
+echo 2. Create a System Restore Point (Windows Settings)
+echo.
+echo ================================================
+echo.
+set /p "confirm=Do you want to continue? (Y/N): "
+echo [%time%] User confirm: %confirm% >> "%LOG_FILE%"
+if /i not "%confirm%"=="Y" (
+    echo [%time%] [CANCELLED] User cancelled >> "%LOG_FILE%"
+    goto MAIN_MENU
+)
+
+echo.
+echo Adding registry keys...
+echo [%time%] Creating root menu keys with MUIVerb... >> "%LOG_FILE%"
+
+REM Directory Background (right-click empty space)
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu" /v "MUIVerb" /d "Open with AI CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu" /v "Icon" /d "cmd.exe" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu" /v "SubCommands" /t REG_SZ /f >nul
+
+REM Directory (right-click folder)
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu" /v "MUIVerb" /d "Open with AI CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu" /v "Icon" /d "cmd.exe" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu" /v "SubCommands" /t REG_SZ /f >nul
+
+echo [%time%] Adding submenus with cmd.exe /c start wt.exe format... >> "%LOG_FILE%"
+
+REM Add submenu items for Directory Background
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\gemini" /ve /d "Gemini CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\gemini\command" /ve /d "cmd.exe /c start wt.exe -d \"%%V\" cmd /k gemini" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\vibe" /ve /d "Mistral Vibe CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\vibe\command" /ve /d "cmd.exe /c start wt.exe -d \"%%V\" cmd /k vibe" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\iflow" /ve /d "iFlow CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\iflow\command" /ve /d "cmd.exe /c start wt.exe -d \"%%V\" cmd /k iflow" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\opencode" /ve /d "OpenCode CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\opencode\command" /ve /d "cmd.exe /c start wt.exe -d \"%%V\" cmd /k opencode" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\qwen" /ve /d "Qwen Code CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\qwen\command" /ve /d "cmd.exe /c start wt.exe -d \"%%V\" cmd /k qwen" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\kilocode" /ve /d "KiloCode CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu\shell\kilocode\command" /ve /d "cmd.exe /c start wt.exe -d \"%%V\" cmd /k kilocode" /f >nul
+
+REM Add submenu items for Directory (folder right-click)
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\gemini" /ve /d "Gemini CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\gemini\command" /ve /d "cmd.exe /c start wt.exe -d \"%%1\" cmd /k gemini" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\vibe" /ve /d "Mistral Vibe CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\vibe\command" /ve /d "cmd.exe /c start wt.exe -d \"%%1\" cmd /k vibe" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\iflow" /ve /d "iFlow CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\iflow\command" /ve /d "cmd.exe /c start wt.exe -d \"%%1\" cmd /k iflow" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\opencode" /ve /d "OpenCode CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\opencode\command" /ve /d "cmd.exe /c start wt.exe -d \"%%1\" cmd /k opencode" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\qwen" /ve /d "Qwen Code CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\qwen\command" /ve /d "cmd.exe /c start wt.exe -d \"%%1\" cmd /k qwen" /f >nul
+
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\kilocode" /ve /d "KiloCode CLI" /f >nul
+reg add "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu\shell\kilocode\command" /ve /d "cmd.exe /c start wt.exe -d \"%%1\" cmd /k kilocode" /f >nul
+
+echo.
+echo [SUCCESS] Context menu updated!
+echo [%time%] [SUCCESS] Context menu added >> "%LOG_FILE%"
+echo [%time%] Added: Gemini, Vibe, iFlow, OpenCode, Qwen, KiloCode >> "%LOG_FILE%"
+echo.
+echo TIP: Use Option 12 to restart Explorer if menu doesn't appear.
+pause
+goto MAIN_MENU
+
+REM ========================================
+REM REMOVE CONTEXT MENU
+REM ========================================
+:REMOVE_CONTEXT_MENU
+cls
+echo.
+echo ================================================
+echo     Remove AI CLI Context Menu
+echo ================================================
+echo.
+echo [%time%] === Removing context menu === >> "%LOG_FILE%"
+
+set /p "confirm=Are you sure? (Y/N): "
+echo [%time%] User confirm: %confirm% >> "%LOG_FILE%"
+if /i not "%confirm%"=="Y" (
+    echo [%time%] [CANCELLED] User cancelled >> "%LOG_FILE%"
+    goto MAIN_MENU
+)
+
+echo.
+echo Removing registry keys...
+echo [%time%] Deleting HKCR\Directory\Background\shell\AI_CLI_Menu >> "%LOG_FILE%"
+reg delete "HKEY_CLASSES_ROOT\Directory\Background\shell\AI_CLI_Menu" /f >nul 2>&1
+echo [%time%] Deleting HKCR\Directory\shell\AI_CLI_Menu >> "%LOG_FILE%"
+reg delete "HKEY_CLASSES_ROOT\Directory\shell\AI_CLI_Menu" /f >nul 2>&1
+
+echo.
+echo [SUCCESS] Context menu removed.
+echo [%time%] [SUCCESS] Context menu removed >> "%LOG_FILE%"
+echo.
+echo TIP: Use Option 12 to restart Explorer if menu still appears.
+pause
+goto MAIN_MENU
+
+REM ========================================
+REM RESTART EXPLORER
+REM ========================================
+:RESTART_EXPLORER
+cls
+echo.
+echo ================================================
+echo         Restarting File Explorer
+echo ================================================
+echo.
+echo This will close and restart Windows Explorer.
+echo Your desktop will briefly disappear and return.
+echo.
+echo [%time%] === Restarting Explorer === >> "%LOG_FILE%"
+pause
+
+echo Restarting Explorer...
+taskkill /f /im explorer.exe >nul 2>&1
+timeout /t 2 >nul
+start explorer.exe
+echo.
+echo [SUCCESS] Explorer restarted!
+echo [%time%] [OK] Explorer restarted >> "%LOG_FILE%"
+timeout /t 2 >nul
+goto MAIN_MENU
+
+REM ========================================
+REM EXIT
+REM ========================================
+:EXIT_SCRIPT
+echo.
+echo [%time%] Session ended >> "%LOG_FILE%"
+echo Goodbye!
+endlocal
+exit /b
